@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Search Pro - Deep Web & Fuentes No Indexadas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* [Mantener todos los estilos anteriores] */
+        /* Añadir estos nuevos estilos al final del CSS existente */
+        
+        .source-selector {
+            margin-top: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .source-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .source-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 5px;
+            background: #e9ecef;
+            transition: all 0.2s;
+        }
+        
+        .source-option:hover {
+            background: #dee2e6;
+        }
+        
+        .source-option input {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .source-option.deepweb {
+            border-left: 4px solid #6c757d;
+        }
+        
+        .source-option.darkweb {
+            border-left: 4px solid #212529;
+        }
+        
+        .source-option.special {
+            border-left: 4px solid #b21f1f;
+        }
+        
+        .result-item .source-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .source-badge.surface {
+            background: #e6f7ff;
+            color: #1a2a6c;
+        }
+        
+        .source-badge.deep {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .source-badge.dark {
+            background: #212529;
+            color: white;
+        }
+        
+        .source-badge.special {
+            background: #fff0f0;
+            color: #b21f1f;
+        }
+        
+        .tor-notice {
+            background: #212529;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .tor-notice a {
+            color: #4dabf7;
+            text-decoration: none;
+        }
+        
+        .tor-notice a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- [Mantener todo el HTML anterior hasta el search-section] -->
+        
+        <div class="search-section">
+            <!-- [Mantener todo el contenido anterior del search-section] -->
+            
+            <div class="source-selector">
+                <h3>Fuentes de búsqueda:</h3>
+                <div class="source-options">
+                    <div class="source-option">
+                        <input type="checkbox" id="sourceGoogle" checked>
+                        <label for="sourceGoogle">Google (Surface Web)</label>
+                    </div>
+                    <div class="source-option deepweb">
+                        <input type="checkbox" id="sourceDeepweb">
+                        <label for="sourceDeepweb">Deep Web</label>
+                    </div>
+                    <div class="source-option darkweb">
+                        <input type="checkbox" id="sourceDarkweb">
+                        <label for="sourceDarkweb">Dark Web (Requiere Tor)</label>
+                    </div>
+                    <div class="source-option special">
+                        <input type="checkbox" id="sourceSpecial">
+                        <label for="sourceSpecial">Fuentes especiales</label>
+                    </div>
+                </div>
+                
+                <div class="tor-notice" id="torNotice">
+                    <i class="fas fa-exclamation-triangle"></i> Para acceder a resultados de Dark Web necesitas usar el navegador Tor. 
+                    <a href="https://www.torproject.org/" target="_blank">Descargar Tor Browser</a>
+                </div>
+            </div>
+            
+            <!-- [Mantener el resto del search-section] -->
+        </div>
+        
+        <!-- [Mantener todo el resto del HTML anterior] -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // [Mantener todo el código JavaScript anterior]
+            
+            // Fuentes de datos simuladas
+            const dataSources = {
+                google: {
+                    name: "Google",
+                    class: "surface",
+                    icon: "fab fa-google"
+                },
+                deepweb: {
+                    name: "Deep Web",
+                    class: "deep",
+                    icon: "fas fa-database"
+                },
+                darkweb: {
+                    name: "Dark Web",
+                    class: "dark",
+                    icon: "fas fa-user-secret"
+                },
+                special: {
+                    name: "Fuente Especial",
+                    class: "special",
+                    icon: "fas fa-star"
+                }
+            };
+            
+            // Configurar eventos para las fuentes
+            document.getElementById('sourceDeepweb').addEventListener('change', updateDorkPreview);
+            document.getElementById('sourceDarkweb').addEventListener('change', function() {
+                updateDorkPreview();
+                if(this.checked) {
+                    document.getElementById('torNotice').style.display = 'block';
+                } else {
+                    document.getElementById('torNotice').style.display = 'none';
+                }
+            });
+            document.getElementById('sourceSpecial').addEventListener('change', updateDorkPreview);
+            
+            // Modificar generateSimulatedResults para incluir fuentes
+            function generateSimulatedResults(query, originalQuery, filetype, site) {
+                // [Mantener el código anterior de generación de resultados]
+                
+                // Determinar fuentes seleccionadas
+                const sources = [];
+                if(document.getElementById('sourceGoogle').checked) sources.push('google');
+                if(document.getElementById('sourceDeepweb').checked) sources.push('deepweb');
+                if(document.getElementById('sourceDarkweb').checked) sources.push('darkweb');
+                if(document.getElementById('sourceSpecial').checked) sources.push('special');
+                
+                // Si no hay fuentes seleccionadas, usar Google por defecto
+                if(sources.length === 0) sources.push('google');
+                
+                // Modificar cada resultado para incluir fuente
+                results.forEach(result => {
+                    // Seleccionar fuente aleatoria de las disponibles
+                    const randomSource = sources[Math.floor(Math.random() * sources.length)];
+                    result.source = dataSources[randomSource];
+                    
+                    // Modificar URL según fuente
+                    if(randomSource === 'darkweb') {
+                        result.url = `https://www.torproject.org/`; // En realidad sería un .onion
+                        result.description += " (Dark Web - Requiere Tor)";
+                    } else if(randomSource === 'deepweb') {
+                        result.description += " (Deep Web - Bases de datos no indexadas)";
+                    } else if(randomSource === 'special') {
+                        result.description += " (Fuente especial - Datos exclusivos)";
+                    }
+                });
+                
+                displayResults(results);
+            }
+            
+            // Modificar displayResults para mostrar fuente
+            function displayResults(results) {
+                // [Mantener código anterior]
+                
+                results.forEach(result => {
+                    // [Mantener código de construcción de resultados]
+                    
+                    // Añadir badge de fuente al título
+                    resultsHTML += `
+                        <div class="result-item" onclick="window.open('${result.url}', '_blank')">
+                            <h4>${result.title} 
+                                <span class="result-type">${result.type}</span>
+                                <span class="source-badge ${result.source.class}">
+                                    <i class="${result.source.icon}"></i> ${result.source.name}
+                                </span>
+                            </h4>
+                            ${phoneContent}
+                            <p>${result.description}</p>
+                            <div class="dork-info">Dork: ${result.dork}</div>
+                            <div class="original-term">Término original: ${result.originalTerm}</div>
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = resultsHTML;
+            }
+            
+            // [Mantener el resto del código JavaScript]
+        });
+    </script>
+</body>
+</html>
