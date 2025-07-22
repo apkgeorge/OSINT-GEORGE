@@ -3,224 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSINT Search Pro - Búsquedas Reales en Deep/Dark Web</title>
+    <title>OSINT Search Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* [Mantener todos los estilos anteriores] */
-        
-        /* Nuevos estilos añadidos */
-        .deepweb-result {
-            border-left: 4px solid #6a5acd;
-            background: rgba(106, 90, 205, 0.05);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        .darkweb-result {
-            border-left: 4px solid #212529;
-            background: rgba(33, 37, 41, 0.05);
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
         }
-        
-        .special-result {
-            border-left: 4px solid #da77f2;
-            background: rgba(218, 119, 242, 0.05);
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        
-        .tor-warning {
-            display: none;
-            background: rgba(33, 37, 41, 0.8);
+
+        header {
+            text-align: center;
+            padding: 30px 0;
             color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            border: 1px solid #495057;
         }
-        
-        .tor-warning a {
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .app-container {
+            display: flex;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .search-section, .results-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-section {
+            flex: 1;
+        }
+
+        .results-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
             color: #4dabf7;
-            text-decoration: none;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 25px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px 0 0 8px;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            outline: none;
+        }
+
+        .search-box button {
+            background: #4dabf7;
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
             font-weight: bold;
         }
-        
-        .tor-warning a:hover {
-            text-decoration: underline;
+
+        .dork-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .dork-type {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dork-type.selected {
+            background: rgba(77, 171, 247, 0.3);
+            border-color: #4dabf7;
+        }
+
+        .dork-type i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #4dabf7;
+        }
+
+        .source-options {
+            margin-top: 20px;
+        }
+
+        .source-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .source-option input {
+            margin-right: 10px;
+        }
+
+        .results-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .result-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-item h4 {
+            color: #4dabf7;
+            margin-bottom: 10px;
+        }
+
+        .result-item a {
+            color: #da77f2;
+            text-decoration: none;
+        }
+
+        .tor-notice {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Estilos para diferentes tipos de resultados */
+        .deepweb-result {
+            border-left: 4px solid #6a5acd;
+        }
+
+        .darkweb-result {
+            border-left: 4px solid #212529;
+        }
+
+        .special-result {
+            border-left: 4px solid #da77f2;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- [Mantener todo el HTML anterior] -->
+        <header>
+            <h1><i class="fas fa-search"></i> OSINT Search Pro</h1>
+            <p>Búsqueda avanzada en Surface Web, Deep Web y Dark Web</p>
+        </header>
+
+        <div class="app-container">
+            <div class="search-section">
+                <h2 class="section-title">Configurar Búsqueda</h2>
+                
+                <div class="search-box">
+                    <input type="text" id="searchQuery" placeholder="Ingresa tu búsqueda...">
+                    <button id="searchButton"><i class="fas fa-search"></i> Buscar</button>
+                </div>
+                
+                <h3>Tipo de Búsqueda:</h3>
+                <div class="dork-types">
+                    <div class="dork-type" data-type="emails">
+                        <i class="fas fa-envelope"></i>
+                        <div>Correos</div>
+                    </div>
+                    <div class="dork-type" data-type="documents">
+                        <i class="fas fa-file-alt"></i>
+                        <div>Documentos</div>
+                    </div>
+                    <div class="dork-type" data-type="phones">
+                        <i class="fas fa-phone"></i>
+                        <div>Teléfonos</div>
+                    </div>
+                </div>
+                
+                <div class="source-options">
+                    <h3>Fuentes:</h3>
+                    <div class="source-option">
+                        <input type="checkbox" id="sourceGoogle" checked>
+                        <label for="sourceGoogle">Google (Surface Web)</label>
+                    </div>
+                    <div class="source-option">
+                        <input type="checkbox" id="sourceDeepweb">
+                        <label for="sourceDeepweb">Deep Web</label>
+                    </div>
+                    <div class="source-option">
+                        <input type="checkbox" id="sourceDarkweb">
+                        <label for="sourceDarkweb">Dark Web</label>
+                    </div>
+                </div>
+                
+                <div class="tor-notice" id="torNotice">
+                    <i class="fas fa-exclamation-triangle"></i> Para acceder a resultados de Dark Web necesitas Tor Browser.
+                    <a href="https://www.torproject.org/" target="_blank">Descargar Tor</a>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <h2 class="section-title">Resultados</h2>
+                <div class="results-container" id="resultsContainer">
+                    <div style="text-align: center; padding: 40px; color: #aaa;">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h3>Realiza una búsqueda para ver resultados</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // [Mantener todas las variables y configuraciones iniciales anteriores]
+            // Elementos DOM
+            const searchInput = document.getElementById('searchQuery');
+            const searchButton = document.getElementById('searchButton');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const torNotice = document.getElementById('torNotice');
+            const dorkTypes = document.querySelectorAll('.dork-type');
             
-            // URLs de servicios reales (simulados para este ejemplo)
-            const deepWebServices = {
-                archives: ["https://archive.org", "https://www.loc.gov", "https://www.ncbi.nlm.nih.gov"],
-                databases: ["https://www.data.gov", "https://www.quandl.com", "https://www.kaggle.com"],
-                academic: ["https://scholar.google.com", "https://www.researchgate.net", "https://www.academia.edu"]
-            };
+            // Tipo de búsqueda seleccionado
+            let selectedType = 'emails';
             
-            const darkWebServices = {
-                search: ["http://grams7enufi7jmdl.onion", "http://haystakvxad7wbk5.onion"],
-                forums: ["http://dreadditevelidot.onion", "http://thehub7xbw4dc5r2.onion"],
-                resources: ["http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xgfuvpdf6otjiycgwqbym2qad.onion"]
-            };
+            // Seleccionar tipo de búsqueda
+            dorkTypes.forEach(type => {
+                type.addEventListener('click', function() {
+                    dorkTypes.forEach(t => t.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedType = this.dataset.type;
+                });
+            });
             
-            const specialSources = {
-                apis: ["https://api.securitytrails.com", "https://api.shodan.io", "https://www.fullcontact.com"],
-                tools: ["https://www.maltego.com", "https://www.spiderfoot.net", "https://www.paterva.com"]
-            };
+            // Inicializar primer tipo como seleccionado
+            dorkTypes[0].classList.add('selected');
             
-            // Modificar generateSimulatedResults para diferenciar fuentes
-            function generateSimulatedResults(query, originalQuery, filetype, site) {
-                // [Mantener código inicial de configuración]
+            // Manejar búsqueda
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') performSearch();
+            });
+            
+            // Manejar cambio en Dark Web
+            document.getElementById('sourceDarkweb').addEventListener('change', function() {
+                if(this.checked) {
+                    torNotice.style.display = 'block';
+                } else {
+                    torNotice.style.display = 'none';
+                }
+            });
+            
+            // Realizar búsqueda
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if(!query) return;
                 
-                // Determinar fuentes seleccionadas
+                // Mostrar carga
+                resultsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 3rem;"></i>
+                        <h3>Buscando información...</h3>
+                    </div>
+                `;
+                
+                // Simular retraso
+                setTimeout(() => {
+                    generateResults(query);
+                }, 1000);
+            }
+            
+            // Generar resultados
+            function generateResults(query) {
                 const sources = [];
                 if(document.getElementById('sourceGoogle').checked) sources.push('google');
                 if(document.getElementById('sourceDeepweb').checked) sources.push('deepweb');
                 if(document.getElementById('sourceDarkweb').checked) sources.push('darkweb');
-                if(document.getElementById('sourceSpecial').checked) sources.push('special');
                 
                 if(sources.length === 0) sources.push('google');
                 
-                const results = [];
-                const count = 8;
+                let resultsHTML = '';
                 
-                for (let i = 0; i < count; i++) {
-                    // [Mantener código de construcción básica del resultado]
+                // Generar 8 resultados de ejemplo
+                for(let i = 1; i <= 8; i++) {
+                    const source = sources[Math.floor(Math.random() * sources.length)];
+                    let resultClass = '';
+                    let sourceName = '';
+                    let url = '#';
+                    let description = '';
                     
-                    // Seleccionar fuente y ajustar resultados según el tipo
-                    const randomSource = sources[Math.floor(Math.random() * sources.length)];
-                    const sourceInfo = dataSources[randomSource];
-                    
-                    // Construir resultados diferentes para cada fuente
-                    if(randomSource === 'deepweb') {
-                        // Resultados específicos de Deep Web
-                        const serviceType = Object.keys(deepWebServices)[Math.floor(Math.random() * 3)];
-                        const service = deepWebServices[serviceType][Math.floor(Math.random() * deepWebServices[serviceType].length)];
-                        
-                        url = service + (service.includes('?') ? '&' : '?') + 'q=' + encodeURIComponent(query);
-                        description = `Resultado de ${serviceType} en Deep Web: ${descriptions[selectedType]}`;
-                        
-                        // Añadir clase CSS específica
-                        resultClass = 'deepweb-result';
-                        
-                    } else if(randomSource === 'darkweb') {
-                        // Resultados específicos de Dark Web
-                        const serviceType = Object.keys(darkWebServices)[Math.floor(Math.random() * 3)];
-                        const service = darkWebServices[serviceType][Math.floor(Math.random() * darkWebServices[serviceType].length)];
-                        
-                        url = service;
-                        description = `Resultado de ${serviceType} en Dark Web: ${descriptions[selectedType]}. Requiere Tor Browser.`;
-                        
-                        // Añadir clase CSS específica
-                        resultClass = 'darkweb-result';
-                        
-                    } else if(randomSource === 'special') {
-                        // Resultados de fuentes especiales
-                        const serviceType = Object.keys(specialSources)[Math.floor(Math.random() * 2)];
-                        const service = specialSources[serviceType][Math.floor(Math.random() * specialSources[serviceType].length)];
-                        
-                        url = service;
-                        description = `Resultado de ${serviceType} premium: ${descriptions[selectedType]}`;
-                        
-                        // Añadir clase CSS específica
-                        resultClass = 'special-result';
-                        
-                    } else {
-                        // Resultados estándar de Google
-                        url = `https://www.google.com/search?q=${encodeURIComponent(dork)}`;
-                        description = descriptions[selectedType];
+                    // Configurar según la fuente
+                    if(source === 'google') {
                         resultClass = '';
+                        sourceName = 'Google';
+                        url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                        description = `Resultado de búsqueda en Google para "${query}"`;
+                    } 
+                    else if(source === 'deepweb') {
+                        resultClass = 'deepweb-result';
+                        sourceName = 'Deep Web';
+                        const deepSources = [
+                            'https://archive.org/details/texts?query=',
+                            'https://www.ncbi.nlm.nih.gov/search/all/?term=',
+                            'https://www.loc.gov/search/?q='
+                        ];
+                        url = deepSources[Math.floor(Math.random() * deepSources.length)] + encodeURIComponent(query);
+                        description = `Resultado de base de datos no indexada para "${query}"`;
                     }
-                    
-                    // [Mantener el resto de la construcción del resultado]
-                    
-                    results.push({
-                        title: title,
-                        url: url,
-                        description: description,
-                        dork: dork,
-                        originalTerm: originalQuery || query,
-                        type: selectedType,
-                        source: sourceInfo,
-                        phoneContent: phoneContent,
-                        resultClass: resultClass
-                    });
-                }
-                
-                displayResults(results);
-            }
-            
-            // Modificar displayResults para manejar enlaces de Dark Web
-            function displayResults(results) {
-                // [Mantener código inicial]
-                
-                results.forEach(result => {
-                    // Construir el onclick según el tipo de fuente
-                    let onclickAction = '';
-                    if(result.source.name === 'Dark Web') {
-                        onclickAction = `onclick="handleDarkWebLink('${result.url}')"`;
-                    } else {
-                        onclickAction = `onclick="window.open('${result.url}', '_blank')"`;
+                    else if(source === 'darkweb') {
+                        resultClass = 'darkweb-result';
+                        sourceName = 'Dark Web';
+                        const darkSources = [
+                            'http://grams7enufi7jmdl.onion/search?q=',
+                            'http://haystakvxad7wbk5.onion/search?q='
+                        ];
+                        url = darkSources[Math.floor(Math.random() * darkSources.length)] + encodeURIComponent(query);
+                        description = `Resultado de Dark Web para "${query}" (requiere Tor)`;
                     }
                     
                     resultsHTML += `
-                        <div class="result-item ${result.resultClass}" ${onclickAction}>
-                            <!-- [Mantener el resto del contenido del resultado] -->
+                        <div class="result-item ${resultClass}" onclick="handleResultClick('${url}', '${source}')">
+                            <h4>Resultado ${i} - ${sourceName}</h4>
+                            <p>${description}</p>
+                            <a href="${url}" target="_blank">${url}</a>
                         </div>
                     `;
-                });
+                }
                 
                 resultsContainer.innerHTML = resultsHTML;
             }
             
-            // Función para manejar enlaces de Dark Web
-            window.handleDarkWebLink = function(url) {
-                // Verificar si estamos en Tor Browser
-                const isTor = window.navigator.userAgent.includes('Tor');
-                
-                if(isTor) {
-                    window.open(url, '_blank');
+            // Manejar clic en resultados
+            window.handleResultClick = function(url, source) {
+                if(source === 'darkweb') {
+                    // Verificar si estamos en Tor
+                    const isTor = window.navigator.userAgent.includes('Tor');
+                    
+                    if(isTor) {
+                        window.open(url, '_blank');
+                    } else {
+                        alert('Para acceder a este enlace de Dark Web necesitas usar Tor Browser.');
+                    }
                 } else {
-                    document.getElementById('torWarningModal').style.display = 'block';
-                    document.getElementById('torWarningLink').href = url;
+                    window.open(url, '_blank');
                 }
             };
-            
-            // [Mantener el resto del código JavaScript]
         });
-    </script>
-    
-    <!-- Modal para advertencia de Tor -->
-    <div id="torWarningModal" class="tor-warning" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; max-width: 500px;">
-        <h3><i class="fas fa-exclamation-triangle"></i> Advertencia: Navegador Tor Requerido</h3>
-        <p>Estás intentando acceder a un enlace de la Dark Web. Para continuar:</p>
-        <ol>
-            <li>Abre este enlace en Tor Browser: <a id="torWarningLink" href="#" target="_blank">Abrir en Tor</a></li>
-            <li>O copia esta URL y pégala en Tor Browser: <code id="torUrlToCopy"></code></li>
-        </ol>
-        <button onclick="document.getElementById('torWarningModal').style.display = 'none'" style="margin-top: 15px; padding: 8px 15px; background: #4dabf7; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            Cerrar
-        </button>
-    </div>
-    
-    <script>
-        // Configurar el modal de advertencia de Tor
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('torWarningLink').addEventListener('click', function(e) {
-                document.getElementById('torWarningModal').style.display = 'none';
-            });
-        });
-        
-        // Función para copiar URL de Tor
-        function copyTorUrl() {
-            const torUrl = document.getElementById('torUrlToCopy').textContent;
-            navigator.clipboard.writeText(torUrl);
-            alert('URL copiada al portapapeles. Pégala en Tor Browser.');
-        }
     </script>
 </body>
 </html>
