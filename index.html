@@ -185,6 +185,12 @@
         .special-result {
             border-left: 4px solid #da77f2;
         }
+
+        .empty-results {
+            text-align: center;
+            padding: 40px;
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
@@ -217,6 +223,22 @@
                         <i class="fas fa-phone"></i>
                         <div>Teléfonos</div>
                     </div>
+                    <div class="dork-type" data-type="social">
+                        <i class="fas fa-hashtag"></i>
+                        <div>Redes Sociales</div>
+                    </div>
+                    <div class="dork-type" data-type="domains">
+                        <i class="fas fa-globe"></i>
+                        <div>Dominios</div>
+                    </div>
+                    <div class="dork-type" data-type="names">
+                        <i class="fas fa-user"></i>
+                        <div>Nombres</div>
+                    </div>
+                    <div class="dork-type" data-type="credentials">
+                        <i class="fas fa-key"></i>
+                        <div>Credenciales</div>
+                    </div>
                 </div>
                 
                 <div class="source-options">
@@ -244,7 +266,7 @@
             <div class="results-section">
                 <h2 class="section-title">Resultados</h2>
                 <div class="results-container" id="resultsContainer">
-                    <div style="text-align: center; padding: 40px; color: #aaa;">
+                    <div class="empty-results">
                         <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 15px;"></i>
                         <h3>Realiza una búsqueda para ver resultados</h3>
                     </div>
@@ -322,53 +344,109 @@
                 
                 let resultsHTML = '';
                 
-                // Generar 8 resultados de ejemplo
-                for(let i = 1; i <= 8; i++) {
+                // Generar múltiples resultados variados
+                const resultCount = sources.includes('deepweb') ? 12 : 8;
+                
+                for(let i = 1; i <= resultCount; i++) {
                     const source = sources[Math.floor(Math.random() * sources.length)];
                     let resultClass = '';
                     let sourceName = '';
                     let url = '#';
                     let description = '';
+                    let title = `Resultado ${i}`;
                     
-                    // Configurar según la fuente
+                    // Configurar según la fuente y tipo de búsqueda
                     if(source === 'google') {
-                        resultClass = '';
                         sourceName = 'Google';
                         url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
                         description = `Resultado de búsqueda en Google para "${query}"`;
+                        
+                        // Añadir detalles según tipo de búsqueda
+                        if(selectedType === 'emails') {
+                            title = `Correos relacionados con ${query}`;
+                            description = `Lista de direcciones de correo relacionadas con "${query}"`;
+                            url = `https://www.google.com/search?q=${encodeURIComponent('intext:"@gmail.com" OR intext:"@hotmail.com" '+query)}`;
+                        }
+                        else if(selectedType === 'documents') {
+                            title = `Documentos sobre ${query}`;
+                            description = `Documentos encontrados relacionados con "${query}"`;
+                            url = `https://www.google.com/search?q=${encodeURIComponent('filetype:pdf OR filetype:doc '+query)}`;
+                        }
+                        // [Añadir más casos para otros tipos de búsqueda]
                     } 
                     else if(source === 'deepweb') {
                         resultClass = 'deepweb-result';
                         sourceName = 'Deep Web';
-                        const deepSources = [
-                            'https://archive.org/details/texts?query=',
-                            'https://www.ncbi.nlm.nih.gov/search/all/?term=',
-                            'https://www.loc.gov/search/?q='
+                        
+                        // Diferentes tipos de resultados para Deep Web
+                        const deepResultTypes = [
+                            {
+                                title: `Registro institucional sobre ${query}`,
+                                desc: `Documento oficial encontrado en bases de datos institucionales`,
+                                url: `https://archive.org/details/texts?query=${encodeURIComponent(query)}`
+                            },
+                            {
+                                title: `Estudio académico sobre ${query}`,
+                                desc: `Investigación académica relacionada encontrada en repositorios`,
+                                url: `https://www.ncbi.nlm.nih.gov/search/all/?term=${encodeURIComponent(query)}`
+                            },
+                            {
+                                title: `Reporte gubernamental sobre ${query}`,
+                                desc: `Documento oficial encontrado en archivos gubernamentales`,
+                                url: `https://www.loc.gov/search/?q=${encodeURIComponent(query)}`
+                            },
+                            {
+                                title: `Base de datos relacionada con ${query}`,
+                                desc: `Conjunto de datos encontrado en repositorios especializados`,
+                                url: `https://www.data.gov/search/?q=${encodeURIComponent(query)}`
+                            }
                         ];
-                        url = deepSources[Math.floor(Math.random() * deepSources.length)] + encodeURIComponent(query);
-                        description = `Resultado de base de datos no indexada para "${query}"`;
+                        
+                        const deepResult = deepResultTypes[Math.floor(Math.random() * deepResultTypes.length)];
+                        title = deepResult.title;
+                        description = deepResult.desc;
+                        url = deepResult.url;
                     }
                     else if(source === 'darkweb') {
                         resultClass = 'darkweb-result';
                         sourceName = 'Dark Web';
-                        const darkSources = [
-                            'http://grams7enufi7jmdl.onion/search?q=',
-                            'http://haystakvxad7wbk5.onion/search?q='
+                        
+                        // Diferentes tipos de resultados para Dark Web
+                        const darkResultTypes = [
+                            {
+                                title: `Menciones de ${query} en foros`,
+                                desc: `Discusiones encontradas en foros de la Dark Web`,
+                                url: `http://dreadditevelidot.onion/search?q=${encodeURIComponent(query)}`
+                            },
+                            {
+                                title: `Recursos relacionados con ${query}`,
+                                desc: `Material encontrado en directorios de la Dark Web`,
+                                url: `http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xgfuvpdf6otjiycgwqbym2qad.onion/search?q=${encodeURIComponent(query)}`
+                            }
                         ];
-                        url = darkSources[Math.floor(Math.random() * darkSources.length)] + encodeURIComponent(query);
-                        description = `Resultado de Dark Web para "${query}" (requiere Tor)`;
+                        
+                        const darkResult = darkResultTypes[Math.floor(Math.random() * darkResultTypes.length)];
+                        title = darkResult.title;
+                        description = darkResult.desc + " (requiere Tor)";
+                        url = darkResult.url;
                     }
                     
                     resultsHTML += `
                         <div class="result-item ${resultClass}" onclick="handleResultClick('${url}', '${source}')">
-                            <h4>Resultado ${i} - ${sourceName}</h4>
+                            <h4>${title} <small>(${sourceName})</small></h4>
                             <p>${description}</p>
-                            <a href="${url}" target="_blank">${url}</a>
+                            <a href="${url}" target="_blank" onclick="event.stopPropagation()">${url}</a>
                         </div>
                     `;
                 }
                 
-                resultsContainer.innerHTML = resultsHTML;
+                resultsContainer.innerHTML = resultsHTML || `
+                    <div class="empty-results">
+                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h3>No se encontraron resultados</h3>
+                        <p>Intenta con otros términos de búsqueda</p>
+                    </div>
+                `;
             }
             
             // Manejar clic en resultados
@@ -378,12 +456,17 @@
                     const isTor = window.navigator.userAgent.includes('Tor');
                     
                     if(isTor) {
-                        window.open(url, '_blank');
+                        // Intentar abrir el enlace .onion
+                        try {
+                            window.open(url, '_blank').focus();
+                        } catch(e) {
+                            alert('Error al abrir el enlace .onion. Asegúrate de usar la última versión de Tor Browser.');
+                        }
                     } else {
-                        alert('Para acceder a este enlace de Dark Web necesitas usar Tor Browser.');
+                        alert('Para acceder a este enlace de Dark Web necesitas usar Tor Browser.\n\nDescarga Tor Browser desde: https://www.torproject.org/');
                     }
                 } else {
-                    window.open(url, '_blank');
+                    window.open(url, '_blank').focus();
                 }
             };
         });
